@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .title {
+            font-size: 3em;
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            margin-bottom: 75px;
+            animation: floating 3s ease-in-out infinite;
+        }
+
+        @keyframes floating {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .cake {
+            width: 300px;
+            height: 180px;
+            background: #f39c12;
+            position: relative;
+            border-radius: 10px;
+            transform: perspective(500px) rotateX(25deg);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+
+        .cake:before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 40px;
+            background: #e67e22;
+            bottom: -20px;
+            border-radius: 10px;
+        }
+
+        .top {
+            width: 300px;
+            height: 120px;
+            background: #e74c3c;
+            border-radius: 50%;
+            position: absolute;
+            top: -60px;
+            transform: translateZ(20px);
+        }
+
+        #candles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+            top: -105px;
+        }
+
+        .candle {
+            width: 6px;
+            height: 45px;
+            background: linear-gradient(to right, #fff, #f1f1f1);
+            position: absolute;
+            border-radius: 4px;
+            transform-origin: bottom center;
+            z-index: 2;
+        }
+
+        .flame {
+            width: 10px;
+            height: 25px;
+            background: linear-gradient(to bottom, #ff9800, #ff5722);
+            position: absolute;
+            border-radius: 50% 50% 20% 20%;
+            top: -22px;
+            left: -2px;
+            transform-origin: bottom;
+            animation: flicker 1s ease-in-out infinite;
+            filter: blur(1px);
+            transition: all 0.3s ease;
+            z-index: 3;
+        }
+
+        @keyframes flicker {
+            0%, 100% { transform: scaleY(1) rotate(-2deg); }
+            50% { transform: scaleY(1.1) rotate(2deg); }
+        }
+
+        .hidden {
+            opacity: 0;
+            transform: translateY(-10px) scale(0);
+        }
+
+        #message {
+            margin-top: 40px;
+            font-size: 1.2em;
+            color: #fff;
+        }
+
+        #debug {
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            color: white;
+            font-size: 12px;
+            opacity: 0.7;
+        }
+
+        .heart {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: 30px;
+            height: 30px;
+            background: url('https://img.icons8.com/ios/452/filled-heart.png') no-repeat center center;
+            background-size: cover;
+            animation: heart-fall 2s linear infinite;
+            z-index: 10;
+        }
+
+        @keyframes heart-fall {
+            0% {
+                transform: translateX(-50%) translateY(-50px) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translateX(-50%) translateY(100vh) scale(0.5);
+                opacity: 0;
+            }
+        }
+
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #f39c12;
+            animation: confetti-fall 2s linear infinite;
+            z-index: 5;
+        }
+
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(-50px) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <h1 class="title">HAPPY BIRTHDAY RISHU BABY ❤️</h1>
+    
+    <div class="cake">
+        <div class="top"></div>
+        <div id="candles"></div>
+    </div>
+
+    <p id="message">Blow at the screen to blow out the candles! 🎂</p>
+    <div id="debug"></div>
+
+    <script>
+        const candlesContainer = document.getElementById('candles');
+
+// Create 20 candles in a circle around the cake
+const numCandles = 20;
+const radius = 60;
+for (let i = 0; i < numCandles; i++) {
+    const angle = (i / numCandles) * 2 * Math.PI;
+    const x = radius * Math.cos(angle);
+    const y = radius * Math.sin(angle);
+
+    const candle = document.createElement('div');
+    candle.className = 'candle';
+    candle.style.position = 'absolute';
+    candle.style.left = `${150 + x}px`;
+    candle.style.top = `${90 + y}px`;
+
+    const flame = document.createElement('div');
+    flame.className = 'flame';
+
+    candle.appendChild(flame);
+    candle.addEventListener('click', () => blowOutCandle(flame));
+
+    candlesContainer.appendChild(candle);
+}
+
+// Blow out the candle (hide the flame)
+function blowOutCandle(flame) {
+    flame.classList.add('hidden');
+    checkAllCandlesBlown();
+}
+
+// Check if all candles are blown out
+function checkAllCandlesBlown() {
+    const flames = document.querySelectorAll('.flame:not(.hidden)');
+    if (flames.length === 0) {
+        triggerCelebrationEffects();
+    }
+}
+
+// Trigger heart and confetti effects
+function triggerCelebrationEffects() {
+    // Create 10 hearts
+    for (let i = 0; i < 10; i++) {
+        const heart = document.createElement('div');
+        heart.classList.add('heart');
+        document.body.appendChild(heart);
+
+        // Random horizontal position
+        heart.style.left = `${Math.random() * 100}%`;
+
+        // Remove after animation is complete
+        setTimeout(() => heart.remove(), 2000);
+    }
+
+    // Create 50 confetti pieces
+    for (let i = 0; i < 50; i++) {
+        const confetti = document.createElement('div');
+        confetti.classList.add('confetti');
+        document.body.appendChild(confetti);
+
+        // Random horizontal position
+        confetti.style.left = `${Math.random() * 100}%`;
+
+        // Random color for the confetti
+        confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
+
+        // Remove after animation is complete
+        setTimeout(() => confetti.remove(), 2000);
+    }
+}
+
+// Microphone detection for blowing candles
+if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+    navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const analyser = audioContext.createAnalyser();
+        const microphone = audioContext.createMediaStreamSource(stream);
+        const dataArray = new Uint8Array(analyser.fftSize);
+
+        microphone.connect(analyser);
+
+        function detectBlow() {
+            analyser.getByteFrequencyData(dataArray);
+            const volume = dataArray.reduce((a, b) => a + b, 0) / dataArray.length;
+
+            if (volume > 50) { // Increased sensitivity for the blow
+                const flames = document.querySelectorAll('.flame:not(.hidden)');
+                if (flames.length) {
+                    flames[Math.floor(Math.random() * flames.length)].classList.add('hidden');
+                }
+            }
+
+            requestAnimationFrame(detectBlow);
+        }
+
+        detectBlow();
+    });
+}
+    </script>
+</body>
+</html>
